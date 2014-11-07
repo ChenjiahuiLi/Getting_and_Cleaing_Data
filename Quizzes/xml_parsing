@@ -1,0 +1,48 @@
+library(XML)
+
+# Save the URL of the xml file in a variable
+xml.url <- "http://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml"
+# the original url is started with "https" and it turns out:
+# > xmlfile <- xmlTreeParse(xml.url)
+# 错误: XML content does not seem to be XML: 'https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml'
+# so I change the url as "http" which turn out to be fine
+
+# Use the xmlTreePares-function to parse xml file directly from the web
+xmlfile <- xmlTreeParse(xml.url)
+
+# the xml file is now saved as an object you can easily work with in R:
+class(xmlfile)
+[1] "XMLDocument"         "XMLAbstractDocument"
+
+# Use the xmlRoot-function to access the top node
+rootNode <- xmlRoot(xmlfile)
+
+xmlName(rootNode)
+[1] "response"
+
+names(rootNode)
+  row 
+"row" 
+
+rootNode[[1]] #会输出所有文件。因为有row这个subroot
+rootNode[[1]][[1]] #
+<row _id="1" _uuid="93CACF6F-C8C2-4B87-95A8-8177806D5A6F" _position="1" _address="http://data.baltimorecity.gov/resource/k5ry-ef3g/1">
+    <name>410</name>
+    <zipcode>21206</zipcode>
+    <neighborhood>Frankford</neighborhood>
+    <councildistrict>2</councildistrict>
+    <policedistrict>NORTHEASTERN</policedistrict>
+    <location_1 human_address="{&quot;address&quot;:&quot;4509 BELAIR ROAD&quot;,&quot;city&quot;:&quot;Baltimore&quot;,&quot;state&quot;:&quot;MD&quot;,&quot;zip&quot;:&quot;&quot;}" needs_recoding="true"/>
+    </row>
+#所以我把rootNode[[1]]重新命名，再从里面提取信息
+subrootNode <- rootNode[[1]]
+subrootNode[[1]] #会输出上面rootNode[[1]][[1]]一样的东西  
+
+
+
+# have a look at the XML-code of the first subnodes:
+print(xmltop)[1:2]
+
+restaurant <- xmlSApply(subrootNode, function(x) xmlSApply(x, xmlValue))
+restaurant_df <- data.frame(t(plantcat),row.names=NULL)
+#so the restaurant_df is the data.frame version of the imformation stored in the url
